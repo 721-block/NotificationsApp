@@ -1,34 +1,35 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMqModule.Common;
 
-namespace RabbitMqModule.Consumer;
+namespace RabbitMqModule.RpcServer;
 
-public class RpcConsumer<TRequestMessage, TResponseMessage>(
+public class RpcServer<TRequestMessage, TResponseMessage>(
     IConsumerSettings consumerSettings,
     IRabbitMqConnectionProvider connectionProvider,
-    IRpcSerializer<TRequestMessage, TResponseMessage> rpcSerializer,
-    IEnumerable<IConsumerHandler<TRequestMessage, TResponseMessage>> consumerHandlers
-    ) : IConsumer
+    IRpcMessageSerializer<TResponseMessage, TRequestMessage> rpcMessageSerializer,
+    IEnumerable<IRpcServerHandler<TRequestMessage, TResponseMessage>> consumerHandlers
+    ) : IRpcServer
 {
     private IChannel channel;
 
     public async Task Start()
     {
         var connection = await connectionProvider.Get().ConfigureAwait(false);
-        channel = await connection.CreateChannelAsync().ConfigureAwait(false);
-
-        await channel.ExchangeDeclareAsync(consumerSettings.ExchangeName, ExchangeType.Direct).ConfigureAwait(false);
-        await channel.QueueDeclareAsync(consumerSettings.QueueName).ConfigureAwait(false);
-        await channel.BasicQosAsync(0, 1, false).ConfigureAwait(false);
-        foreach (var routingKey in consumerSettings.RoutingKeys)
-            await channel.QueueBindAsync(consumerSettings.QueueName, consumerSettings.ExchangeName, routingKey)
-                .ConfigureAwait(false);
+        channel = await ChannelBuilder
+            .New(connection)
+            .AddExchange(consumerSettings.ExchangeName, ExchangeType.Direct)
+            .DeclareQueue(consumerSettings.QueueName)
+            .AddQos()
+            .BindQueue(consumerSettings.RoutingKeys)
+            .Build()
+            .ConfigureAwait(false);
 
         var consumer = new AsyncEventingBasicConsumer(channel);
-        consumer.ReceivedAsync += async (model, ea) =>
+        consumer.ReceivedAsync += async (_, ea) =>
         {
             var body = ea.Body.ToArray();
-            var requestMessage = rpcSerializer.Deserialize(body);
+            var requestMessage = rpcMessageSerializer.Deserialize(body);
 
             var responseData = new ResponseData<TResponseMessage>();
             foreach (var handler in consumerHandlers)
@@ -39,12 +40,14 @@ public class RpcConsumer<TRequestMessage, TResponseMessage>(
             {
                 CorrelationId = props.CorrelationId,
             };
-            var response = rpcSerializer.Serialize(responseData.Message);
+            var response = rpcMessageSerializer.Serialize(responseData.Message);
 
             await channel.BasicPublishAsync(string.Empty, props.ReplyTo!, mandatory: true, replyProps, response)
                 .ConfigureAwait(false);
-            await channel.BasicAckAsync(ea.DeliveryTag, false);
+            await channel.BasicAckAsync(ea.DeliveryTag, false).ConfigureAwait(false);
         };
+
+        await channel.BasicConsumeAsync(consumerSettings.QueueName, false, consumer).ConfigureAwait(false);
     }
 }
 

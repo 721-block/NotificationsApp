@@ -1,4 +1,4 @@
-namespace RabbitMqModule.Consumer;
+namespace RabbitMqModule.RpcServer;
 
 public class ResponseData<TMessage>
 {

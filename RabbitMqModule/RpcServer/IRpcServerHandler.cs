@@ -1,6 +1,6 @@
-namespace RabbitMqModule.Consumer;
+namespace RabbitMqModule.RpcServer;
 
-public interface IConsumerHandler<TRequestMessage, TResponseMessage>
+public interface IRpcServerHandler<in TRequestMessage, TResponseMessage>
 {
     Task<ResponseData<TResponseMessage>> Handle(TRequestMessage requestMessage, ResponseData<TResponseMessage> responseData);
 }
