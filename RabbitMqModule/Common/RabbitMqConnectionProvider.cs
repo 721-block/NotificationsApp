@@ -13,7 +13,7 @@ public class RabbitMqConnectionProvider : IRabbitMqConnectionProvider
     private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
     private ConnectionFactory factory;
 
-    public RabbitMqConnectionProvider(IRabbitMqSettings rabbitMqSettings)
+    public RabbitMqConnectionProvider(RabbitMqSettings rabbitMqSettings)
     {
         factory = new ConnectionFactory
         {
@@ -43,9 +43,9 @@ public class RabbitMqConnectionProvider : IRabbitMqConnectionProvider
     }
 }
 
-public interface IRabbitMqSettings
+public class RabbitMqSettings
 {
-    string HostName { get; set; }
-    bool AutomaticRecoveryEnabled { get; set; }
-    TimeSpan NetworkRecoveryInterval { get; set; }
+    public string HostName { get; set; }
+    public bool AutomaticRecoveryEnabled { get; set; }
+    public TimeSpan NetworkRecoveryInterval { get; set; }
 }

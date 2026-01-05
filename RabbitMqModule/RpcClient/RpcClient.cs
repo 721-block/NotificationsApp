@@ -7,7 +7,7 @@ namespace RabbitMqModule.RpcClient;
 
 public class RpcClient<TRequestMessage, TResponseMessage>(
     IRabbitMqConnectionProvider connectionProvider,
-    IRpcClientSettings rpcClientSettings,
+    RpcClientSettings rpcClientSettings,
     IRpcMessageSerializer<TRequestMessage, TResponseMessage> rpcMessageSerializer
 ) : IRpcClient<TRequestMessage, TResponseMessage>
 {
@@ -69,7 +69,7 @@ public class RpcClient<TRequestMessage, TResponseMessage>(
     }
 }
 
-public interface IRpcClientSettings
+public class RpcClientSettings
 {
     public string ExchangeName { get; set; }
     public string ReplyQueueName { get; set; }

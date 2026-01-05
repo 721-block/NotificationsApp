@@ -1,7 +1,7 @@
 namespace RabbitMqModule.Common;
 
-public interface IRpcMessageSerializer<in TSentMessage, out TReplyMessage>
+public interface IRpcMessageSerializer<in TSentMessage, out TReceivedMessage>
 {
     byte[] Serialize(TSentMessage message);
-    TReplyMessage Deserialize(byte[] body);
+    TReceivedMessage Deserialize(byte[] body);
 }

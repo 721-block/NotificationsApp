@@ -5,7 +5,7 @@ using RabbitMqModule.Common;
 namespace RabbitMqModule.RpcServer;
 
 public class RpcServer<TRequestMessage, TResponseMessage>(
-    IConsumerSettings consumerSettings,
+    RpcServerSettings rpcServerSettings,
     IRabbitMqConnectionProvider connectionProvider,
     IRpcMessageSerializer<TResponseMessage, TRequestMessage> rpcMessageSerializer,
     IEnumerable<IRpcServerHandler<TRequestMessage, TResponseMessage>> consumerHandlers
@@ -18,10 +18,10 @@ public class RpcServer<TRequestMessage, TResponseMessage>(
         var connection = await connectionProvider.Get().ConfigureAwait(false);
         channel = await ChannelBuilder
             .New(connection)
-            .AddExchange(consumerSettings.ExchangeName, ExchangeType.Direct)
-            .DeclareQueue(consumerSettings.QueueName)
+            .AddExchange(rpcServerSettings.ExchangeName, ExchangeType.Direct)
+            .DeclareQueue(rpcServerSettings.QueueName)
             .AddQos()
-            .BindQueue(consumerSettings.RoutingKeys)
+            .BindQueue(rpcServerSettings.RoutingKeys)
             .Build()
             .ConfigureAwait(false);
 
@@ -47,13 +47,13 @@ public class RpcServer<TRequestMessage, TResponseMessage>(
             await channel.BasicAckAsync(ea.DeliveryTag, false).ConfigureAwait(false);
         };
 
-        await channel.BasicConsumeAsync(consumerSettings.QueueName, false, consumer).ConfigureAwait(false);
+        await channel.BasicConsumeAsync(rpcServerSettings.QueueName, false, consumer).ConfigureAwait(false);
     }
 }
 
-public interface IConsumerSettings
+public class RpcServerSettings
 {
-    string ExchangeName { get; set; }
-    string QueueName { get; set; }
-    string[] RoutingKeys { get; set; }
+    public string ExchangeName { get; set; }
+    public string QueueName { get; set; }
+    public string[] RoutingKeys { get; set; }
 }
