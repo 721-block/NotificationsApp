@@ -61,7 +61,9 @@ public class RpcClient<TRequestMessage, TResponseMessage>(
         callbackMapper.TryAdd(correlationId, tcs);
 
         var requestBytes = rpcMessageSerializer.Serialize(requestMessage);
-        await channel.BasicPublishAsync(rpcClientSettings.ExchangeName, routingKey!, requestBytes).ConfigureAwait(false);
+        await channel
+            .BasicPublishAsync(rpcClientSettings.ExchangeName, routingKey!, true, props, requestBytes)
+            .ConfigureAwait(false);
 
         return await tcs.Task;
     }
