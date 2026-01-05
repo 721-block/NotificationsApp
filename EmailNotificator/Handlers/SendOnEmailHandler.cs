@@ -5,10 +5,7 @@ namespace EmailNotificator.Handlers;
 
 public class SendOnEmailHandler(IMailService mailService) : IRpcServerHandler<SendNotificationRequest, SendNotificationResponse>
 {
-    public async Task<ResponseData<SendNotificationResponse>> Handle(
-        SendNotificationRequest requestMessage,
-        ResponseData<SendNotificationResponse> responseData
-    )
+    public async Task<SendNotificationResponse> Handle(SendNotificationRequest requestMessage)
     {
         var mailData = new MailData
         {
@@ -19,9 +16,6 @@ public class SendOnEmailHandler(IMailService mailService) : IRpcServerHandler<Se
 
         var result = await mailService.Send(mailData).ConfigureAwait(false);
 
-        return new ResponseData<SendNotificationResponse>
-        {
-            Message = new SendNotificationResponse {IsNotificationSent = result }
-        };
+        return new SendNotificationResponse { IsNotificationSent = result };
     }
 }

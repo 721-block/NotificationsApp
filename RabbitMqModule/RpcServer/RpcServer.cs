@@ -8,7 +8,7 @@ public class RpcServer<TRequestMessage, TResponseMessage>(
     RpcServerSettings rpcServerSettings,
     IRabbitMqConnectionProvider connectionProvider,
     IRpcMessageSerializer<TResponseMessage, TRequestMessage> rpcMessageSerializer,
-    IEnumerable<IRpcServerHandler<TRequestMessage, TResponseMessage>> consumerHandlers
+    IRpcServerHandler<TRequestMessage, TResponseMessage> consumerHandler
     ) : IRpcServer
 {
     private IChannel channel;
@@ -31,16 +31,14 @@ public class RpcServer<TRequestMessage, TResponseMessage>(
             var body = ea.Body.ToArray();
             var requestMessage = rpcMessageSerializer.Deserialize(body);
 
-            var responseData = new ResponseData<TResponseMessage>();
-            foreach (var handler in consumerHandlers)
-                responseData = await handler.Handle(requestMessage, responseData).ConfigureAwait(false);
+            var responseMessage = await consumerHandler.Handle(requestMessage).ConfigureAwait(false);
 
             var props = ea.BasicProperties;
             var replyProps = new BasicProperties
             {
                 CorrelationId = props.CorrelationId,
             };
-            var response = rpcMessageSerializer.Serialize(responseData.Message);
+            var response = rpcMessageSerializer.Serialize(responseMessage);
 
             await channel.BasicPublishAsync(string.Empty, props.ReplyTo!, mandatory: true, replyProps, response)
                 .ConfigureAwait(false);
