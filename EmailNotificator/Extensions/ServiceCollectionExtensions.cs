@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+
 namespace EmailNotificator.Extensions;
 
 public static class ServiceCollectionExtensions
@@ -7,8 +9,29 @@ public static class ServiceCollectionExtensions
         IConfigurationManager config,
         string sectionName) where T : class
     {
-        var settings = config.GetSection(sectionName).Get<T>();
-        services.AddSingleton(settings!);
+        services.Configure<T>(config.GetSection(sectionName));
+
+        services.AddSingleton<T>(x =>
+        {
+            var a = x.GetService<IOptions<T>>();
+            return a!.Value;
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddScopedSettings<T>(
+        this IServiceCollection services,
+        IConfigurationManager config,
+        string sectionName) where T : class
+    {
+        services.Configure<T>(config.GetSection(sectionName));
+
+        services.AddScoped<T>(x =>
+        {
+            var a = x.GetService<IOptionsSnapshot<T>>();
+            return a!.Value;
+        });
 
         return services;
     }

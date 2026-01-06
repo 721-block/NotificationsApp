@@ -12,10 +12,10 @@ var services = builder.Services;
 
 services.AddSingletonSettings<RpcServerSettings>(config, "RpcServerSettings")
     .AddSingletonSettings<RabbitMqSettings>(config, "RabbitMqSettings")
-    .AddSingletonSettings<MailSettings>(config, "MailSettings")
+    .AddScopedSettings<MailSettings>(config, "MailSettings")
     .AddSingleton<IRabbitMqConnectionProvider, RabbitMqConnectionProvider>()
     .AddSingleton<IRpcMessageSerializer<SendNotificationResponse, SendNotificationRequest>, EmailSerializer>()
-    .AddSingleton<IMailService, MailService>()
+    .AddScoped<IMailService, MailService>()
     .AddSingleton<IRpcServerHandler<SendNotificationRequest, SendNotificationResponse>, SendOnEmailHandler>()
     .AddSingleton<IRpcServer, RpcServer<SendNotificationRequest, SendNotificationResponse>>();
 
