@@ -6,4 +6,5 @@ public class MainSmsSettings
     public string ApiKey { get; set; }
     public bool IsTest { get; set; }
     public bool UseSsl { get; set; }
+    public string SenderName { get; set; }
 }

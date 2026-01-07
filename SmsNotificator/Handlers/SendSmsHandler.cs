@@ -10,9 +10,10 @@ public class SendSmsHandler(IServiceScopeFactory serviceScopeFactory) : IRpcServ
     {
         await using var serviceScope = serviceScopeFactory.CreateAsyncScope();
         var smsService = serviceScope.ServiceProvider.GetRequiredService<ISmsService>();
+        var smsSettings = serviceScope.ServiceProvider.GetRequiredService<MainSmsSettings>();
         var smsData = new SmsData
         {
-            SenderName = requestMessage.Metadata["SenderName"],
+            SenderName = smsSettings.SenderName,
             Body = requestMessage.Body,
             Recipients = [requestMessage.Recipient],
             Subject = requestMessage.Subject
