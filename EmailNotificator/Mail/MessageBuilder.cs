@@ -40,7 +40,10 @@ public class MessageBuilder
         var message = new MimeMessage();
 
         if (sender != null)
+        {
             message.Sender = new MailboxAddress(sender.DisplayName, sender.Address);
+            message.From.Add(MailboxAddress.Parse(sender.Address));
+        }
 
         if (recipient != null)
         {

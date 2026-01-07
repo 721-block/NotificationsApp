@@ -14,7 +14,7 @@ public class MailService(MailSettings settings) : IMailService
     {
         var message = MessageBuilder
             .New()
-            .SetSender(settings.SenderDisplayName, settings.SenderAddress)
+            .SetSender(settings.SenderDisplayName, settings.UserName)
             .SetRecipient(mailData.RecipientAddresses)
             .SetContent(mailData.Subject, mailData.Body)
             .Build();
