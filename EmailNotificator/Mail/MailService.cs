@@ -5,12 +5,12 @@ namespace EmailNotificator;
 
 public interface IMailService
 {
-    Task<bool> Send(MailData mailData);
+    Task<SendingResult> Send(MailData mailData);
 }
 
 public class MailService(MailSettings settings) : IMailService
 {
-    public async Task<bool> Send(MailData mailData)
+    public async Task<SendingResult> Send(MailData mailData)
     {
         var message = MessageBuilder
             .New()
@@ -32,13 +32,19 @@ public class MailService(MailSettings settings) : IMailService
         }
         catch (Exception e)
         {
-            return false;
+            return new SendingResult {IsSent = false, Message = e.Message};
         }
         finally
         {
             await client.DisconnectAsync(true).ConfigureAwait(false);
         }
 
-        return true;
+        return new SendingResult{IsSent = true};
     }
+}
+
+public class SendingResult
+{
+    public bool IsSent { get; set; }
+    public string? Message { get; set; }
 }

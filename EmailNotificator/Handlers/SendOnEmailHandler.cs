@@ -3,9 +3,9 @@ using RabbitMqModule.RpcServer;
 
 namespace EmailNotificator.Handlers;
 
-public class SendOnEmailHandler(IServiceScopeFactory serviceScopeFactory) : IRpcServerHandler<SendNotificationRequest, SendNotificationResponse>
+public class SendOnEmailHandler(IServiceScopeFactory serviceScopeFactory) : IRpcServerHandler<SendMailNotificationRequest, SendMailNotificationResponse>
 {
-    public async Task<SendNotificationResponse> Handle(SendNotificationRequest requestMessage)
+    public async Task<SendMailNotificationResponse> Handle(SendMailNotificationRequest requestMessage)
     {
         await using var serviceScope = serviceScopeFactory.CreateAsyncScope();
         var mailService = serviceScope.ServiceProvider.GetRequiredService<IMailService>();
@@ -19,6 +19,6 @@ public class SendOnEmailHandler(IServiceScopeFactory serviceScopeFactory) : IRpc
 
         var result = await mailService.Send(mailData).ConfigureAwait(false);
 
-        return new SendNotificationResponse { IsNotificationSent = result };
+        return new SendMailNotificationResponse { IsNotificationSent = result.IsSent, Error = result.Message };
     }
 }

@@ -14,10 +14,10 @@ services.AddSingletonSettings<RpcServerSettings>(config, "RpcServerSettings")
     .AddSingletonSettings<RabbitMqSettings>(config, "RabbitMqSettings")
     .AddScopedSettings<MailSettings>(config, "MailSettings")
     .AddSingleton<IRabbitMqConnectionProvider, RabbitMqConnectionProvider>()
-    .AddSingleton<IRpcMessageSerializer<SendNotificationResponse, SendNotificationRequest>, EmailSerializer>()
+    .AddSingleton<IRpcMessageSerializer<SendMailNotificationResponse, SendMailNotificationRequest>, EmailSerializer>()
     .AddScoped<IMailService, MailService>()
-    .AddSingleton<IRpcServerHandler<SendNotificationRequest, SendNotificationResponse>, SendOnEmailHandler>()
-    .AddSingleton<IRpcServer, RpcServer<SendNotificationRequest, SendNotificationResponse>>();
+    .AddSingleton<IRpcServerHandler<SendMailNotificationRequest, SendMailNotificationResponse>, SendOnEmailHandler>()
+    .AddSingleton<IRpcServer, RpcServer<SendMailNotificationRequest, SendMailNotificationResponse>>();
 
 builder.Services.AddHostedService<EmailNotificatorWorker>();
 

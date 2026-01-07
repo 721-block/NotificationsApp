@@ -5,9 +5,9 @@ using RabbitMqModule.Common;
 
 namespace EmailNotificator.Serializers;
 
-public class EmailSerializer : IRpcMessageSerializer<SendNotificationResponse, SendNotificationRequest>
+public class EmailSerializer : IRpcMessageSerializer<SendMailNotificationResponse, SendMailNotificationRequest>
 {
-    public byte[] Serialize(SendNotificationResponse message)
+    public byte[] Serialize(SendMailNotificationResponse message)
     {
         var serializedMessage = JsonConvert.SerializeObject(message);
         var body = Encoding.UTF8.GetBytes(serializedMessage);
@@ -15,10 +15,10 @@ public class EmailSerializer : IRpcMessageSerializer<SendNotificationResponse, S
         return body;
     }
 
-    public SendNotificationRequest Deserialize(byte[] body)
+    public SendMailNotificationRequest Deserialize(byte[] body)
     {
         var serializedMessage = Encoding.UTF8.GetString(body);
-        var message = JsonConvert.DeserializeObject<SendNotificationRequest>(serializedMessage);
+        var message = JsonConvert.DeserializeObject<SendMailNotificationRequest>(serializedMessage);
 
         return message;
     }

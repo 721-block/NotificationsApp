@@ -1,6 +1,6 @@
 namespace EmailNotificator.Models;
 
-public class SendNotificationRequest
+public class SendMailNotificationRequest
 {
     public string Recipient { get; set; }
     public string Subject { get; set; }

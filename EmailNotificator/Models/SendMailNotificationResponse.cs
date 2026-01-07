@@ -1,6 +1,7 @@
 namespace EmailNotificator.Models;
 
-public class SendNotificationResponse
+public class SendMailNotificationResponse
 {
     public bool IsNotificationSent;
+    public string? Error;
 }
