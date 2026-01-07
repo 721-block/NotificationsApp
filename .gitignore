@@ -7,6 +7,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
+## Игнор личных настроек рабочего окружения
+*.sln.DotSettings.user
+
 ## Игнор всех файлов настроек
 appsettings.*.json
 
