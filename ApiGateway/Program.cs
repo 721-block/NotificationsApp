@@ -9,13 +9,27 @@ using PushNotificator.Serializers;
 using RabbitMqModule.Common;
 using RabbitMqModule.RpcClient;
 using RabbitMqModule.RpcServer;
+using Serilog;
+using Serilog.Sinks.Elasticsearch;
 using SmsNotificator.Models;
 using SmsNotificator.Serializers;
+
+Log.Logger = new LoggerConfiguration()  
+    .Enrich.FromLogContext()  
+    .WriteTo.Console()  
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))  
+    {  
+        AutoRegisterTemplate = true,  
+        IndexFormat = "myapp-logs-{0:yyyy.MM.dd}"  
+    })  
+    .CreateLogger();  
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var config = builder.Configuration;
 // Add services to the container.
+
+builder.Host.UseSerilog();
 
 builder.Services.AddDbContext<NotificationStatusDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

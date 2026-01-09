@@ -1,0 +1,131 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    container_name: api-gateway
+    depends_on:
+      - rabbitmq
+      - postgres
+      - elasticsearch
+    environment:
+      # ASP.NET Core
+      ASPNETCORE_ENVIRONMENT: "Development"
+      # Подстройка connection string к PostgreSQL (совпадает с appsettings.json по умолчанию)
+      ConnectionStrings__NotificationsConnection: "Host=postgres;Database=Notifications;Username=postgres;Password=password123;"
+      # RabbitMQ host внутри docker-сети
+      RabbitMqSettings__HostName: "rabbitmq"
+      # Elasticsearch URL для Serilog
+      Serilog__WriteTo__0__Args__nodeUris: "http://elasticsearch:9200"
+    ports:
+      - "8080:8080"
+    networks:
+      - notifications-net
+
+  email-notificator:
+    build:
+      context: .
+      dockerfile: EmailNotificator/Dockerfile
+    container_name: email-notificator
+    depends_on:
+      - rabbitmq
+    environment:
+      RabbitMqSettings__HostName: "rabbitmq"
+    networks:
+      - notifications-net
+
+  sms-notificator:
+    build:
+      context: .
+      dockerfile: SmsNotificator/Dockerfile
+    container_name: sms-notificator
+    depends_on:
+      - rabbitmq
+    environment:
+      RabbitMqSettings__HostName: "rabbitmq"
+    networks:
+      - notifications-net
+
+  push-notificator:
+    build:
+      context: .
+      dockerfile: PushNotificator/Dockerfile
+    container_name: push-notificator
+    depends_on:
+      - rabbitmq
+    environment:
+      RabbitMqSettings__HostName: "rabbitmq"
+    networks:
+      - notifications-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      - notifications-net
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_DB: "Notifications"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password123"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - notifications-net
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    networks:
+      - notifications-net
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.0
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+    ports:
+      - "5601:5601"
+    networks:
+      - notifications-net
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.15.0
+    container_name: logstash
+    depends_on:
+      - elasticsearch
+    environment:
+      - xpack.monitoring.enabled=false
+    ports:
+      - "5044:5044"
+    networks:
+      - notifications-net
+
+networks:
+  notifications-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+
