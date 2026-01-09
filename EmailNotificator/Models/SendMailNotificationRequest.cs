@@ -1,9 +1,8 @@
+using Core.Models;
+
 namespace EmailNotificator.Models;
 
-public class SendMailNotificationRequest
+public class SendMailNotificationRequest : NotificationRequest
 {
-    public string Recipient { get; set; }
-    public string Subject { get; set; }
-    public string Body { get; set; }
-    public Dictionary<string, string> Metadata { get; set; }
+    // Специфичные для этого типа данные
 }

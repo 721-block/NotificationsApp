@@ -16,7 +16,7 @@ services.AddSingletonSettings<RpcServerSettings>(config, "RpcServerSettings")
     .AddScopedSettings<MainSmsSettings>(config, "MainSmsSettings")
     .AddSingleton<ISmsMessageProvider, SmsMessageProvider>()
     .AddSingleton<IRabbitMqConnectionProvider, RabbitMqConnectionProvider>()
-    .AddSingleton<IRpcMessageSerializer<SendSmsNotificationResponse, SendSmsNotificationRequest>, SmsSerializer>()
+    .AddSingleton<IRpcMessageSerializer<SendSmsNotificationRequest, SendSmsNotificationResponse>, SmsSerializer>()
     .AddScoped<ISmsService, SmsService>()
     .AddSingleton<IRpcServerHandler<SendSmsNotificationRequest, SendSmsNotificationResponse>, SendSmsHandler>()
     .AddSingleton<IRpcServer, RpcServer<SendSmsNotificationRequest, SendSmsNotificationResponse>>();

@@ -1,7 +1,8 @@
+using Core.Models;
+
 namespace EmailNotificator.Models;
 
-public class SendMailNotificationResponse
+public class SendMailNotificationResponse : NotificationResponse
 {
-    public bool IsNotificationSent;
-    public string? Error;
+    // Специфичные для этого типа данные
 }

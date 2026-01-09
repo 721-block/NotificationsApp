@@ -28,6 +28,7 @@ public class RpcClient<TRequestMessage, TResponseMessage>(
 
         consumer.ReceivedAsync += (model, ea) =>
         {
+            // TODO: Тут проверить статус и необходимость ретраев и отправить повторно в случае чего
             var correlationId = ea.BasicProperties.CorrelationId;
             if (!string.IsNullOrEmpty(correlationId) && callbackMapper.TryRemove(correlationId, out var tcs))
             {

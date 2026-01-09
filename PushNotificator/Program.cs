@@ -16,10 +16,10 @@ services.AddSingletonSettings<RpcServerSettings>(config, "RpcServerSettings")
     .AddScopedSettings<PushSettings>(config, "PushSettings")
     .AddScoped<IPushBulletClientFactory, PushBulletClientFactory>()
     .AddSingleton<IRabbitMqConnectionProvider, RabbitMqConnectionProvider>()
-    .AddSingleton<IRpcMessageSerializer<SendPushNotificationResponse, SendPushNotificationRequest>, PushSerializer>()
-    .AddScoped<IPushService, PushService>()
+    .AddSingleton<IRpcMessageSerializer<SendPushNotificationRequest, SendPushNotificationResponse>, PushSerializer>()
     .AddSingleton<IRpcServerHandler<SendPushNotificationRequest, SendPushNotificationResponse>, SendPushHandler>()
-    .AddSingleton<IRpcServer, RpcServer<SendPushNotificationRequest, SendPushNotificationResponse>>();
+    .AddSingleton<IRpcServer, RpcServer<SendPushNotificationRequest, SendPushNotificationResponse>>()
+    .AddScoped<IPushService, PushService>();
 
 builder.Services.AddHostedService<PushNotificatorWorker>();
 

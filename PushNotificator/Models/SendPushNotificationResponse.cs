@@ -1,7 +1,8 @@
+using Core.Models;
+
 namespace PushNotificator.Models;
 
-public class SendPushNotificationResponse
+public class SendPushNotificationResponse : NotificationResponse
 {
-    public bool IsNotificationSent;
-    public string? Error;
+    // Специфичные для этого типа данные
 }

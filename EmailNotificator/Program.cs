@@ -14,7 +14,7 @@ services.AddSingletonSettings<RpcServerSettings>(config, "RpcServerSettings")
     .AddSingletonSettings<RabbitMqSettings>(config, "RabbitMqSettings")
     .AddScopedSettings<MailSettings>(config, "MailSettings")
     .AddSingleton<IRabbitMqConnectionProvider, RabbitMqConnectionProvider>()
-    .AddSingleton<IRpcMessageSerializer<SendMailNotificationResponse, SendMailNotificationRequest>, EmailSerializer>()
+    .AddSingleton<IRpcMessageSerializer<SendMailNotificationRequest, SendMailNotificationResponse>, EmailSerializer>()
     .AddScoped<IMailService, MailService>()
     .AddSingleton<IRpcServerHandler<SendMailNotificationRequest, SendMailNotificationResponse>, SendOnEmailHandler>()
     .AddSingleton<IRpcServer, RpcServer<SendMailNotificationRequest, SendMailNotificationResponse>>();
